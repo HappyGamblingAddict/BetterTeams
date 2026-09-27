@@ -39,6 +39,7 @@ import com.booksaw.betterTeams.team.storage.StorageType;
 import com.booksaw.betterTeams.team.storage.convert.Converter;
 import com.booksaw.betterTeams.team.storage.storageManager.SeparatedYamlStorageManager;
 import com.booksaw.betterTeams.team.storage.storageManager.YamlStorageManager;
+import com.tcoded.folialib.FoliaLib;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.milkbowl.vault.economy.Economy;
@@ -90,6 +91,12 @@ public class Main extends JavaPlugin {
 	ExtensionManager extensionManager;
 
 	/**
+	 * FoliaLib instance for Folia/Paper/Spigot support
+	 */
+	@Getter
+	private FoliaLib foliaLib;
+
+	/**
 	 * If the ultimateClaims expansion has been enabled
 	 */
 	@Getter
@@ -134,6 +141,7 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		foliaLib = new FoliaLib(this);
 		setupMetrics();
 
 		if (adventure == null) try {
@@ -189,6 +197,10 @@ public class Main extends JavaPlugin {
 
 		if (extensionManager != null) {
 			extensionManager.unloadExtensions();
+		}
+
+		if (foliaLib != null) {
+			foliaLib.getScheduler().cancelAllTasks();
 		}
 
 		for (Entry<Player, Team> temp : InventoryManagement.adminViewers.entrySet()) {
@@ -419,7 +431,9 @@ public class Main extends JavaPlugin {
 		BelowNameType type = BelowNameType.getType(Objects.requireNonNull(getConfig().getString("displayTeamName")));
 		Main.plugin.getLogger().info("Loading below name. Type: " + type);
 		if (getConfig().getBoolean("useTeams")) {
-			if (teamManagement == null) {
+			if (foliaLib.isFolia()) {
+				Bukkit.getLogger().warning("Folia detected: Skipping MCTeamManagement initialization to avoid threading issues.");
+			} else if (teamManagement == null) {
 				teamManagement = new MCTeamManagement(type);
 
 				teamManagement.displayBelowNameForAll();
@@ -519,8 +533,9 @@ public class Main extends JavaPlugin {
 			extensionManager.enableExtensions();
 		} else {
 			// Run later
-			Bukkit.getScheduler().runTaskLater(this, () ->
-					extensionManager.enableExtensions(), enableTick);
+			foliaLib.getScheduler().runLater(() -> {
+				extensionManager.enableExtensions();
+			}, enableTick);
 		}
 	}
 }

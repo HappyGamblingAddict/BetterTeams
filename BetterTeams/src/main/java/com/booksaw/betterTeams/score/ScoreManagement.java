@@ -58,7 +58,7 @@ public class ScoreManagement implements Listener {
 	 * This class is used to schedule events
 	 */
 	private void sched() {
-		Bukkit.getScheduler().runTaskTimer(Main.plugin, () -> {
+		Main.plugin.getFoliaLib().getScheduler().runTimer(() -> {
 
 			if (purges.get(nextPurge).isNow()) {
 				if (run) {
@@ -83,14 +83,14 @@ public class ScoreManagement implements Listener {
 
 	@EventHandler
 	public void onPurge(PostPurgeEvent e) {
-		Bukkit.getScheduler().runTask(Main.plugin, () ->
+		Main.plugin.getFoliaLib().getScheduler().runLater(() ->
 				Main.plugin.getConfig().getStringList("purgeCommands").forEach(cmd -> {
 					if (Main.plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 						cmd = PlaceholderAPI.setPlaceholders(null, cmd);
 					}
 
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-				}));
+				}), 1L);
 	}
 
 	@EventHandler

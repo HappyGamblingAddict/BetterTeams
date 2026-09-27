@@ -1,6 +1,7 @@
 package com.booksaw.betterTeams.commands.teama;
 
 import com.booksaw.betterTeams.CommandResponse;
+import com.booksaw.betterTeams.Main;
 import com.booksaw.betterTeams.Team;
 import com.booksaw.betterTeams.commands.ParentCommand;
 import com.booksaw.betterTeams.commands.SubCommand;
@@ -10,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
@@ -209,14 +211,18 @@ public class TeleportTeama extends SubCommand {
 		if (locations.length != 1) {
 			for (int i = 0; i < targetList.size(); i++) {
 				if (locations[i] == null) continue; // Some teams may not have their home set
-				targetList.get(i).teleport(locations[i]);
+				teleport(targetList.get(i), locations[i]);
 			}
 			return;
 		}
 		for (Player player : targetList) {
-			player.teleport(locations[0]);
+			teleport(player, locations[0]);
 		}
 
+	}
+
+	private void teleport(Player player, Location location) {
+		Main.plugin.getFoliaLib().getScheduler().teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
 	}
 
 	@Override

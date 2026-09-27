@@ -1,9 +1,9 @@
 package com.booksaw.betterTeams;
 
 import com.booksaw.betterTeams.message.MessageManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 /**
  * A class to handle a teleport with a delay
@@ -45,20 +45,20 @@ public class PlayerTeleport {
 
 		if (player.hasPermission("betterteams.warmup.bypass")) {
 			MessageManager.sendMessage(player, "teleport.bypass");
-			Bukkit.getScheduler().runTask(Main.plugin, this::runTp);
+			Main.plugin.getFoliaLib().getScheduler().runNextTick(task -> runTp());
 			return;
 		}
 
 		int wait = Main.plugin.getConfig().getInt("tpDelay");
 		if (wait <= 0) {
-			Bukkit.getScheduler().runTask(Main.plugin, this::runTp);
+			Main.plugin.getFoliaLib().getScheduler().runNextTick(task -> runTp());
 			return;
 		}
 
 		// sending the wait message
 		MessageManager.sendMessage(player, "teleport.wait", wait);
 
-		Bukkit.getScheduler().runTaskLater(Main.plugin, task -> {
+		Main.plugin.getFoliaLib().getScheduler().runLater(task -> {
 			if (canTp()) {
 				try {
 					runTp();
@@ -78,7 +78,7 @@ public class PlayerTeleport {
 			return;
 		}
 
-		player.teleport(location);
+		Main.plugin.getFoliaLib().getScheduler().teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.PLUGIN);
 	}
 
 	public boolean canTp() {

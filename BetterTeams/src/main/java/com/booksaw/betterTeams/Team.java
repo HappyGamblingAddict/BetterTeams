@@ -864,7 +864,7 @@ public class Team {
 			return;
 		}
 
-		Bukkit.getScheduler().runTaskLater(Main.plugin, task -> {
+		Main.plugin.getFoliaLib().getScheduler().runLater(task -> {
 			Player p = Bukkit.getPlayer(uniqueId);
 			if (p == null || getTeamPlayer(p) != null) {
 				return;

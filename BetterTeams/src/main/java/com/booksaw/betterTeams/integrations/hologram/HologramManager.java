@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,8 +81,7 @@ public abstract class HologramManager {
 	}
 
 	public void startUpdates() {
-		BukkitScheduler scheduler = Main.plugin.getServer().getScheduler();
-		scheduler.scheduleSyncRepeatingTask(Main.plugin, () -> {
+		Main.plugin.getFoliaLib().getScheduler().runTimer(() -> {
 			if (!isHolographicDisplaysEnabled() && !isDecentHologramsEnabled()) {
 				return;
 			}
